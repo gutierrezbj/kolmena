@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  server:
+    name: Server — lint, typecheck, test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: kolmena_test
+          POSTGRES_USER: kolmena
+          POSTGRES_PASSWORD: kolmena_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U kolmena"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://kolmena:kolmena_ci@localhost:5432/kolmena_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-test-secret-minimum-32-characters-long
+      HOST: 127.0.0.1
+      PORT: 4080
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck server
+        run: pnpm --filter @kolmena/server typecheck
+
+      - name: Push schema to test DB
+        run: pnpm --filter @kolmena/server db:push
+
+      - name: Run tests
+        run: pnpm --filter @kolmena/server test
