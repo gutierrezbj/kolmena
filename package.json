@@ -1,0 +1,27 @@
+{
+  "name": "kolmena",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plataforma de gestion inteligente para comunidades de propietarios",
+  "scripts": {
+    "dev": "pnpm --filter @kolmena/server dev",
+    "build": "pnpm --filter @kolmena/server build",
+    "start": "pnpm --filter @kolmena/server start",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
+    "test": "pnpm --filter @kolmena/server test",
+    "test:coverage": "pnpm --filter @kolmena/server test:coverage",
+    "db:generate": "pnpm --filter @kolmena/server db:generate",
+    "db:migrate": "pnpm --filter @kolmena/server db:migrate",
+    "db:studio": "pnpm --filter @kolmena/server db:studio",
+    "clean": "pnpm -r exec rm -rf dist node_modules",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.4"
+}
