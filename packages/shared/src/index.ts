@@ -1,2 +1,2 @@
-export { userRoleSchema, type UserRole } from './dto/user.js';
-export { communitySchema, type Community } from './dto/community.js';
+export { userRoleSchema, userResponseSchema, type UserRole, type UserResponse } from './dto/user.js';
+export { communitySchema, createCommunitySchema, type Community, type CreateCommunity } from './dto/community.js';
