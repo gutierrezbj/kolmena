@@ -21,6 +21,10 @@ export const incidentStatusEnum = pgEnum('incident_status', [
 
 export const incidentPriorityEnum = pgEnum('incident_priority', ['low', 'medium', 'high', 'urgent']);
 
+export const postTypeEnum = pgEnum('post_type', ['announcement', 'general', 'event']);
+
+export const pollStatusEnum = pgEnum('poll_status', ['draft', 'active', 'closed']);
+
 export const incidentCategoryEnum = pgEnum('incident_category', [
   'plumbing',
   'electrical',
@@ -81,6 +85,61 @@ export const userCommunities = pgTable('user_communities', {
     .references(() => communities.id),
   role: userRoleEnum('role').notNull().default('resident'),
   joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// -- Social module: posts & polls --
+
+export const posts = pgTable('posts', {
+  id: uuid('id').primaryKey(),
+  communityId: uuid('community_id')
+    .notNull()
+    .references(() => communities.id),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id),
+  type: postTypeEnum('type').notNull().default('general'),
+  title: varchar('title', { length: 255 }).notNull(),
+  body: text('body').notNull(),
+  isPinned: boolean('is_pinned').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const polls = pgTable('polls', {
+  id: uuid('id').primaryKey(),
+  communityId: uuid('community_id')
+    .notNull()
+    .references(() => communities.id),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id),
+  question: varchar('question', { length: 500 }).notNull(),
+  status: pollStatusEnum('status').notNull().default('active'),
+  endsAt: timestamp('ends_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const pollOptions = pgTable('poll_options', {
+  id: uuid('id').primaryKey(),
+  pollId: uuid('poll_id')
+    .notNull()
+    .references(() => polls.id, { onDelete: 'cascade' }),
+  label: varchar('label', { length: 255 }).notNull(),
+  sortOrder: integer('sort_order').notNull().default(0),
+});
+
+export const pollVotes = pgTable('poll_votes', {
+  id: uuid('id').primaryKey(),
+  pollId: uuid('poll_id')
+    .notNull()
+    .references(() => polls.id, { onDelete: 'cascade' }),
+  optionId: uuid('option_id')
+    .notNull()
+    .references(() => pollOptions.id, { onDelete: 'cascade' }),
+  voterId: uuid('voter_id')
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // -- Fix module: incidents & comments --
