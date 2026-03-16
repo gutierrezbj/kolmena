@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: kolmena_dev
       POSTGRES_DB: kolmena
     ports:
-      - "5432:5432"
+      - "127.0.0.1:6080:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -20,7 +20,7 @@ services:
     image: redis:7-alpine
     container_name: kolmena-redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6081:6379"
     volumes:
       - redisdata:/data
     healthcheck:
