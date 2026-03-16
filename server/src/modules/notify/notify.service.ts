@@ -57,5 +57,5 @@ export async function sendNotification(data: {
     resource: data.resource ?? null,
     resourceId: data.resourceId ?? null,
   }).returning();
-  return notif;
+  return notif!;
 }

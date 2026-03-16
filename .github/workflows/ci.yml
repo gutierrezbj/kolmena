@@ -56,6 +56,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Build shared package
+        run: pnpm --filter @kolmena/shared build
+
       - name: Typecheck server
         run: pnpm --filter @kolmena/server typecheck
 
