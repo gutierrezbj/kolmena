@@ -46,12 +46,14 @@ export async function loginTestUser(email: string, password: string) {
 }
 
 /** Make an authenticated request */
-export async function authRequest(token: string, method: string, url: string, payload?: unknown) {
+/** Make an authenticated request */
+export async function authRequest(token: string, method: string, url: string, payload?: unknown): Promise<{ statusCode: number; json: () => any }> {
   const a = await getApp();
-  return a.inject({
+  const res = await a.inject({
     method: method as any,
     url,
     headers: { authorization: `Bearer ${token}` },
     payload: payload as any,
   });
+  return res;
 }
