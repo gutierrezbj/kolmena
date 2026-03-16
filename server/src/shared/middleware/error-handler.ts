@@ -27,6 +27,16 @@ export function errorHandler(error: FastifyError, request: FastifyRequest, reply
     });
   }
 
+  // Fastify validation errors (from Zod via validatorCompiler)
+  if (error.validation) {
+    logger.warn({ validation: error.validation, correlationId }, 'Validation error');
+    return reply.status(400).send({
+      error: ErrorCode.VALIDATION_ERROR,
+      message: error.message,
+      correlationId,
+    });
+  }
+
   logger.error({ err: error, correlationId }, 'Unhandled error');
   return reply.status(500).send({
     error: ErrorCode.INTERNAL_ERROR,
