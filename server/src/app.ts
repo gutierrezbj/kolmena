@@ -16,6 +16,8 @@ import { authRoutes } from './modules/auth/routes.js';
 import { coreRoutes } from './modules/core/routes.js';
 import { fixRoutes } from './modules/fix/routes.js';
 import { socialRoutes } from './modules/social/routes.js';
+import { spacesRoutes } from './modules/spaces/routes.js';
+import { notifyRoutes } from './modules/notify/routes.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -55,6 +57,8 @@ export async function buildApp() {
   await app.register(coreRoutes, { prefix: '/api/v1' });
   await app.register(fixRoutes, { prefix: '/api/v1/fix' });
   await app.register(socialRoutes, { prefix: '/api/v1/social' });
+  await app.register(spacesRoutes, { prefix: '/api/v1/spaces' });
+  await app.register(notifyRoutes, { prefix: '/api/v1' });
 
   return app;
 }

@@ -25,6 +25,10 @@ export const postTypeEnum = pgEnum('post_type', ['announcement', 'general', 'eve
 
 export const pollStatusEnum = pgEnum('poll_status', ['draft', 'active', 'closed']);
 
+export const bookingStatusEnum = pgEnum('booking_status', ['pending', 'confirmed', 'cancelled']);
+
+export const notificationChannelEnum = pgEnum('notification_channel', ['push', 'email', 'in_app']);
+
 export const incidentCategoryEnum = pgEnum('incident_category', [
   'plumbing',
   'electrical',
@@ -190,5 +194,56 @@ export const incidentStatusLog = pgTable('incident_status_log', {
   fromStatus: incidentStatusEnum('from_status').notNull(),
   toStatus: incidentStatusEnum('to_status').notNull(),
   note: text('note'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// -- Spaces module: bookable spaces & reservations --
+
+export const spaces = pgTable('spaces', {
+  id: uuid('id').primaryKey(),
+  communityId: uuid('community_id')
+    .notNull()
+    .references(() => communities.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  maxCapacity: integer('max_capacity'),
+  rules: text('rules'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const bookings = pgTable('bookings', {
+  id: uuid('id').primaryKey(),
+  spaceId: uuid('space_id')
+    .notNull()
+    .references(() => spaces.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  communityId: uuid('community_id')
+    .notNull()
+    .references(() => communities.id),
+  startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
+  endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
+  status: bookingStatusEnum('status').notNull().default('confirmed'),
+  note: text('note'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// -- Notify module: in-app notifications --
+
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  communityId: uuid('community_id')
+    .references(() => communities.id),
+  channel: notificationChannelEnum('channel').notNull().default('in_app'),
+  title: varchar('title', { length: 255 }).notNull(),
+  body: text('body').notNull(),
+  resource: varchar('resource', { length: 50 }),
+  resourceId: uuid('resource_id'),
+  isRead: boolean('is_read').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
