@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { api } from '../../src/lib/api';
+import { useCommunity } from '../../src/hooks/useCommunity';
 import { colors } from '../../src/theme/colors';
 import { typography } from '../../src/theme/typography';
 
@@ -13,64 +15,89 @@ type Post = {
   createdAt: string;
 };
 
+type NotificationSummary = {
+  unread: number;
+};
+
 export default function HomeScreen() {
+  const router = useRouter();
+  const { community } = useCommunity();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [unread, setUnread] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchPosts = async () => {
+  const fetchData = useCallback(async () => {
+    if (!community) return;
     try {
-      // TODO: use actual community ID from context
-      const res = await api<{ posts: Post[] }>('/social/communities/TODO/posts');
-      setPosts(res.posts);
+      const [postsRes, notifRes] = await Promise.all([
+        api<{ posts: Post[] }>(`/social/communities/${community.id}/posts`),
+        api<NotificationSummary>(`/notifications/unread-count`).catch(() => ({ unread: 0 })),
+      ]);
+      setPosts(postsRes.posts);
+      setUnread(notifRes.unread);
     } catch {
       // silent fail on home
     }
-  };
+  }, [community]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPosts();
+    await fetchData();
     setRefreshing(false);
   };
+
+  const quickActions = [
+    { icon: '🔧', label: 'Incidencia', route: '/fix' as const },
+    { icon: '📅', label: 'Reservar', route: '/spaces' as const },
+    { icon: '📢', label: 'Anuncio', route: '/social' as const },
+    { icon: '📊', label: 'Votacion', route: '/social' as const },
+  ];
 
   return (
     <View style={styles.container}>
       <View style={styles.welcome}>
-        <Text style={typography.h1}>Kolmena</Text>
-        <Text style={styles.tagline}>Bienvenido a tu comunidad</Text>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={typography.h1}>Kolmena</Text>
+            <Text style={styles.communityName}>{community?.name ?? 'Cargando...'}</Text>
+          </View>
+          {unread > 0 && (
+            <View style={styles.notifBadge}>
+              <Text style={styles.notifText}>{unread > 99 ? '99+' : unread}</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       <View style={styles.quickActions}>
         <Text style={typography.label}>Acceso rapido</Text>
         <View style={styles.actionRow}>
-          {[
-            { icon: '🔧', label: 'Incidencia' },
-            { icon: '📅', label: 'Reservar' },
-            { icon: '📢', label: 'Anuncio' },
-            { icon: '📊', label: 'Votacion' },
-          ].map((a) => (
-            <View key={a.label} style={styles.actionCard}>
+          {quickActions.map((a) => (
+            <TouchableOpacity key={a.label} style={styles.actionCard} onPress={() => router.push(a.route)}>
               <Text style={styles.actionIcon}>{a.icon}</Text>
               <Text style={styles.actionLabel}>{a.label}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </View>
 
-      {posts.length > 0 && (
-        <FlatList
-          data={posts}
-          keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.honey} />}
-          renderItem={({ item }) => (
-            <View style={styles.postCard}>
-              {item.isPinned && <Text style={styles.pinBadge}>FIJADO</Text>}
-              <Text style={typography.h3}>{item.title}</Text>
-              <Text style={typography.bodySmall} numberOfLines={2}>{item.body}</Text>
-            </View>
-          )}
-        />
-      )}
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.honey} />}
+        ListEmptyComponent={<Text style={styles.empty}>No hay novedades</Text>}
+        renderItem={({ item }) => (
+          <View style={styles.postCard}>
+            {item.isPinned && <Text style={styles.pinBadge}>FIJADO</Text>}
+            <Text style={typography.h3}>{item.title}</Text>
+            <Text style={typography.bodySmall} numberOfLines={2}>{item.body}</Text>
+          </View>
+        )}
+      />
     </View>
   );
 }
@@ -78,7 +105,18 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   welcome: { padding: 24, paddingTop: 60 },
-  tagline: { ...typography.body, color: colors.gray500, marginTop: 4 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  communityName: { ...typography.bodySmall, color: colors.gray500, marginTop: 2 },
+  notifBadge: {
+    backgroundColor: colors.error,
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  notifText: { color: colors.white, fontSize: 11, fontWeight: '700' },
   quickActions: { padding: 24, paddingTop: 0 },
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 12 },
   actionCard: {
@@ -119,4 +157,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     overflow: 'hidden',
   },
+  empty: { ...typography.bodySmall, textAlign: 'center', marginTop: 32 },
 });
