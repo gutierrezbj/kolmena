@@ -14,6 +14,7 @@ import { logger } from './shared/utils/logger.js';
 // Module routes
 import { authRoutes } from './modules/auth/routes.js';
 import { coreRoutes } from './modules/core/routes.js';
+import { fixRoutes } from './modules/fix/routes.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -51,6 +52,7 @@ export async function buildApp() {
   // Module routes
   await app.register(authRoutes, { prefix: '/api/v1/auth' });
   await app.register(coreRoutes, { prefix: '/api/v1' });
+  await app.register(fixRoutes, { prefix: '/api/v1/fix' });
 
   return app;
 }
