@@ -1,15 +1,18 @@
 # JuanCho
 
 **Also known as:** JuanCho
-**Role:** Tech Lead, Co-fundador
+**Role:** Fundador y Tech Lead
 **Company:** System Rapid Solutions (SRS)
 **Email:** gutierrezbj@gmail.com
 
 ## Context
-- Dueño técnico de Kolmena
+- Fundador y dueño de SRS (IT + Drones + Software propio)
+- Tech Lead de todos los proyectos SRS
+- Co-fundador de Kolmena (junto con Alex Navarro)
 - Toma las decisiones de arquitectura
-- Dev principal del proyecto
+- Dev principal
 - Trabaja con Claude como copiloto (Cowork para decisiones, Code para implementación)
+- Dirige equipo: Andros, Adriana, Christian + devs (Adrián Bracho)
 
 ## Preferences
 - Respuestas directas, sin rodeos
