@@ -15,7 +15,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
 COPY server/ ./server/
 COPY packages/shared/ ./packages/shared/
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @kolmena/server build
+RUN pnpm --filter @kolmena/shared build && pnpm --filter @kolmena/server build
 
 # Runtime
 FROM node:20-slim AS runtime
@@ -26,5 +26,5 @@ COPY --from=build /app/server/dist ./server/dist
 COPY --from=build /app/packages/shared/dist ./packages/shared/dist
 
 ENV NODE_ENV=production
-EXPOSE 3000
+EXPOSE 4080
 CMD ["node", "server/dist/server.js"]

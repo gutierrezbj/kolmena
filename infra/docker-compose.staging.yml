@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  kolmena-api:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    container_name: kolmena-api
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4080:4080'
+    environment:
+      NODE_ENV: production
+      PORT: 4080
+      DATABASE_URL: postgresql://kolmena:kolmena_staging@kolmena-db:5432/kolmena
+      REDIS_URL: redis://kolmena-redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: http://127.0.0.1:3080
+    depends_on:
+      kolmena-db:
+        condition: service_healthy
+      kolmena-redis:
+        condition: service_started
+    networks:
+      - kolmena
+
+  kolmena-db:
+    image: postgres:16-alpine
+    container_name: kolmena-db
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6080:5432'
+    environment:
+      POSTGRES_USER: kolmena
+      POSTGRES_PASSWORD: kolmena_staging
+      POSTGRES_DB: kolmena
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U kolmena']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kolmena
+
+  kolmena-redis:
+    image: redis:7-alpine
+    container_name: kolmena-redis
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6081:6379'
+    volumes:
+      - redisdata:/data
+    networks:
+      - kolmena
+
+  kolmena-admin:
+    build:
+      context: ..
+      dockerfile: apps/admin/Dockerfile
+    container_name: kolmena-admin
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3080:80'
+    depends_on:
+      - kolmena-api
+    networks:
+      - kolmena
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  kolmena:
+    driver: bridge
