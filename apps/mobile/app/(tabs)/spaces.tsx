@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { api } from '../../src/lib/api';
 import { useCommunity } from '../../src/hooks/useCommunity';
 import { colors } from '../../src/theme/colors';
@@ -23,6 +24,7 @@ type Booking = {
 };
 
 export default function SpacesScreen() {
+  const router = useRouter();
   const { community } = useCommunity();
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -93,6 +95,10 @@ export default function SpacesScreen() {
           </View>
         )}
       />
+
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/create-booking')}>
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -138,4 +144,21 @@ const styles = StyleSheet.create({
   cancelled: { backgroundColor: '#FFEBEE', color: colors.error },
   timeRange: { fontSize: 14, fontWeight: '600', color: colors.honey, marginBottom: 4 },
   empty: { ...typography.bodySmall, textAlign: 'center', marginTop: 32 },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.honey,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  fabText: { color: colors.white, fontSize: 28, fontWeight: '300', marginTop: -2 },
 });

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { api } from '../../src/lib/api';
 import { useCommunity } from '../../src/hooks/useCommunity';
 import { colors } from '../../src/theme/colors';
@@ -23,6 +24,7 @@ type Poll = {
 };
 
 export default function SocialScreen() {
+  const router = useRouter();
   const { community } = useCommunity();
   const [tab, setTab] = useState<'posts' | 'polls'>('posts');
   const [posts, setPosts] = useState<Post[]>([]);
@@ -123,6 +125,10 @@ export default function SocialScreen() {
           }}
         />
       )}
+
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/create-post')}>
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -202,4 +208,21 @@ const styles = StyleSheet.create({
   },
   optionLabel: { flex: 1, fontSize: 14, color: colors.gray800, zIndex: 1 },
   optionPct: { fontSize: 14, fontWeight: '600', color: colors.gray700, zIndex: 1 },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.honey,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  fabText: { color: colors.white, fontSize: 28, fontWeight: '300', marginTop: -2 },
 });
