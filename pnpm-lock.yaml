@@ -11,14 +11,14 @@ importers:
   apps/admin:
     dependencies:
       react:
-        specifier: ^19.0.0
-        version: 19.2.0
+        specifier: 19.2.4
+        version: 19.2.4
       react-dom:
-        specifier: ^19.0.0
-        version: 19.2.4(react@19.2.0)
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
       react-router-dom:
         specifier: ^7.0.0
-        version: 7.13.1(react-dom@19.2.4(react@19.2.0))(react@19.2.0)
+        version: 7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -126,7 +126,7 @@ importers:
         version: link:../packages/shared
       drizzle-orm:
         specifier: ^0.38.0
-        version: 0.38.4(@types/pg@8.18.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.0)
+        version: 0.38.4(@types/pg@8.18.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.4)
       fastify:
         specifier: ^5.0.0
         version: 5.8.2
@@ -4145,6 +4145,10 @@ packages:
     resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
     engines: {node: '>=0.10.0'}
 
+  react@19.2.4:
+    resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
+    engines: {node: '>=0.10.0'}
+
   readable-stream@4.7.0:
     resolution: {integrity: sha512-oIGGmcpTLwPga8Bn6/Z75SVaH1z5dUut2ibSyAMVhmUggWpmDn2dapB0n7f8nwaSiRtepAsfJyfXIO5DCVAODg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -7419,12 +7423,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.38.4(@types/pg@8.18.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.0):
+  drizzle-orm@0.38.4(@types/pg@8.18.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.4):
     optionalDependencies:
       '@types/pg': 8.18.0
       '@types/react': 19.2.14
       pg: 8.20.0
-      react: 19.2.0
+      react: 19.2.4
 
   ee-first@1.1.1: {}
 
@@ -8964,6 +8968,11 @@ snapshots:
       react: 19.2.0
       scheduler: 0.27.0
 
+  react-dom@19.2.4(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+      scheduler: 0.27.0
+
   react-fast-compare@3.2.2: {}
 
   react-freeze@1.0.4(react@19.2.0):
@@ -9104,19 +9113,19 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  react-router-dom@7.13.1(react-dom@19.2.4(react@19.2.0))(react@19.2.0):
+  react-router-dom@7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
-      react: 19.2.0
-      react-dom: 19.2.4(react@19.2.0)
-      react-router: 7.13.1(react-dom@19.2.4(react@19.2.0))(react@19.2.0)
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      react-router: 7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
-  react-router@7.13.1(react-dom@19.2.4(react@19.2.0))(react@19.2.0):
+  react-router@7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       cookie: 1.1.1
-      react: 19.2.0
+      react: 19.2.4
       set-cookie-parser: 2.7.2
     optionalDependencies:
-      react-dom: 19.2.4(react@19.2.0)
+      react-dom: 19.2.4(react@19.2.4)
 
   react-style-singleton@2.2.3(@types/react@19.2.14)(react@19.2.0):
     dependencies:
@@ -9127,6 +9136,8 @@ snapshots:
       '@types/react': 19.2.14
 
   react@19.2.0: {}
+
+  react@19.2.4: {}
 
   readable-stream@4.7.0:
     dependencies:
