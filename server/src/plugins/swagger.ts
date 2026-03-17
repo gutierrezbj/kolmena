@@ -10,7 +10,7 @@ export async function registerSwagger(app: FastifyInstance) {
         description: 'API de gestion para comunidades de propietarios',
         version: '0.1.0',
       },
-      servers: [{ url: 'http://localhost:3000', description: 'Development' }],
+      servers: [{ url: 'http://127.0.0.1:4080', description: 'Development' }],
       components: {
         securitySchemes: {
           bearerAuth: {

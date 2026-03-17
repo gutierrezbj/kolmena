@@ -1,9 +1,11 @@
 # Kolmena - La Comunidad Inteligente
 
-**Status:** Pre-desarrollo, decisiones arquitectónicas tomadas, scaffolding pendiente
-**Repo:** github.com/srs-tech/kolmena (pendiente crear)
+**Status:** Fase 1 en desarrollo activo — backend completo (6 módulos), mobile conectado al API
+**Repo:** github.com/gutierrezbj/kolmena
 **Domain:** kolmena.app (pendiente registrar)
+**Infra:** Offset +80 (puertos 3080/4080/5080/6080-6081). Mac Mini: postgres + redis ya corriendo
 **Document:** Kolmena_SDD_v0.2.0 (en carpeta raíz del proyecto)
+**Notion:** https://www.notion.so/3247981f08ef81c9a487df3e07b62fab
 
 ## Qué Es
 Plataforma SaaS de gestión inteligente para comunidades de propietarios en España. Integra administración, social, incidencias, reservas, marketplace inmobiliario e IoT en una sola app.
@@ -29,6 +31,36 @@ España tiene ~900K comunidades de propietarios gestionadas con WhatsApp, Excel 
 - **Erick Saputo** - Comercialización
 - **Adrián Bracho** - Dev, mano derecha de JuanCho
 
+## Progreso Actual (17 Mar 2026)
+
+### Backend (server/) — COMPLETO
+- 6 módulos implementados: auth, core, social, fix, spaces, notify
+- Schema Drizzle completo: 14 tablas, 8 pgEnums
+- 42 tests de integración pasando (Vitest)
+- API REST con Zod validation + OpenAPI auto-generado
+- CI/CD con GitHub Actions (typecheck + tests con Postgres)
+- Auth: JWT (jose), bcrypt, refresh tokens, authGuard middleware
+
+### Mobile (apps/mobile/) — EN PROGRESO
+- Expo SDK 55 + Expo Router (tab navigation, 5 tabs)
+- Auth flow: login/register con SecureStore para tokens
+- Auth guard: verifica sesión almacenada antes de rutear
+- 4 screens conectados al API: Home, Social, Fix, Spaces
+- 3 formularios de creación: create-incident, create-booking, create-post
+- FABs en las 3 tabs principales para crear recursos
+- Profile screen con logout
+- Theme system: colors + typography tokens
+- Hooks: useAuth, useCommunity
+- Typecheck limpio (tsc --noEmit exit 0)
+
+### Pendiente Fase 1
+- [ ] Panel Admin (EP-05): Dashboard multi-comunidad, gestión, CSV
+- [ ] Fotos en incidencias (Cloudflare R2)
+- [ ] Push notifications (Firebase Cloud Messaging)
+- [ ] Email transaccional (Resend / Brevo)
+- [ ] OAuth2 Google + Magic Link
+- [ ] Deploy a staging
+
 ## Roadmap
 | Fase | Módulos | Timeline estimado |
 |------|---------|-------------------|
@@ -51,18 +83,18 @@ España tiene ~900K comunidades de propietarios gestionadas con WhatsApp, Excel 
 ## Arquitectura (Decisiones Aprobadas)
 - **Patrón:** Monolito modular (un proceso Fastify, módulos por dominio)
 - **Backend:** Node.js + Fastify + TypeScript
-- **Mobile:** React Native + Expo SDK 52 (iOS + Android + Web)
+- **Mobile:** React Native + Expo SDK 55 (iOS + Android + Web)
 - **DB:** PostgreSQL 16 (multi-tenancy schema isolation) + Redis 7
 - **ORM:** Drizzle ORM
 - **Auth:** JWT (15min/7d) + OAuth2 Google + Magic Link
 - **Files:** Cloudflare R2
 - **IDs:** UUID v7
 - **API:** REST + OpenAPI auto-generado desde Zod
-- **Infra:** Docker Compose en VPS SRS (8GB RAM, 100GB SSD)
+- **Infra:** Docker Compose en VPS SRS (8GB RAM, 96GB SSD). Offset +80 en convención puertos
 - **CI/CD:** GitHub Actions
 
 ## Costos MVP
-- Prácticamente 0 EUR/mes usando infra compartida SRS
+- ~0 EUR/mes usando infra compartida SRS (~22.50 EUR/mes total SRS)
 - Dominio: ~15 EUR/año
 - Apple Developer: 99 EUR/año
 - Google Play: 25 EUR one-time
