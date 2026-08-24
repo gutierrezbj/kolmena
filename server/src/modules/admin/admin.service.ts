@@ -23,12 +23,12 @@ export async function getDashboardStats() {
     ]);
 
   return {
-    users: userCount.value,
-    communities: communityCount.value,
-    incidents: incidentCount.value,
-    posts: postCount.value,
-    polls: pollCount.value,
-    bookings: bookingCount.value,
+    users: userCount?.value ?? 0,
+    communities: communityCount?.value ?? 0,
+    incidents: incidentCount?.value ?? 0,
+    posts: postCount?.value ?? 0,
+    polls: pollCount?.value ?? 0,
+    bookings: bookingCount?.value ?? 0,
   };
 }
 

@@ -19,6 +19,8 @@ import { socialRoutes } from './modules/social/routes.js';
 import { spacesRoutes } from './modules/spaces/routes.js';
 import { notifyRoutes } from './modules/notify/routes.js';
 import { adminRoutes } from './modules/admin/routes.js';
+import { uploadRoutes } from './modules/upload/routes.js';
+import multipart from '@fastify/multipart';
 
 export async function buildApp() {
   const app = Fastify({
@@ -50,6 +52,19 @@ export async function buildApp() {
     );
   });
 
+  // Multipart support (file uploads)
+  await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
+
+  // Serve local uploads in development
+  if (env.NODE_ENV === 'development') {
+    const path = await import('node:path');
+    await app.register(import('@fastify/static'), {
+      root: path.join(process.cwd(), 'uploads'),
+      prefix: '/uploads/',
+      decorateReply: false,
+    });
+  }
+
   // Health check
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));
 
@@ -61,6 +76,7 @@ export async function buildApp() {
   await app.register(spacesRoutes, { prefix: '/api/v1/spaces' });
   await app.register(notifyRoutes, { prefix: '/api/v1' });
   await app.register(adminRoutes, { prefix: '/api/v1/admin' });
+  await app.register(uploadRoutes, { prefix: '/api/v1/upload' });
 
   return app;
 }

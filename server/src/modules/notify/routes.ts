@@ -2,9 +2,21 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { authGuard } from '../../shared/middleware/auth-guard.js';
-import { listNotifications, getUnreadCount, markAsRead, markAllAsRead } from './notify.service.js';
+import {
+  listNotifications,
+  getUnreadCount,
+  markAsRead,
+  markAllAsRead,
+  registerDeviceToken,
+  deregisterDeviceToken,
+} from './notify.service.js';
 
 const idParam = z.object({ id: z.string().uuid() });
+
+const deviceTokenBody = z.object({
+  token: z.string().min(1).max(500),
+  platform: z.enum(['ios', 'android']),
+});
 
 export async function notifyRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>();
@@ -31,6 +43,22 @@ export async function notifyRoutes(app: FastifyInstance) {
     schema: { tags: ['notifications'] },
   }, async (request, reply) => {
     await markAllAsRead(request.user!.id);
+    return reply.status(204).send();
+  });
+
+  // -- Device token registration --
+
+  typedApp.post('/notifications/device-token', {
+    schema: { body: deviceTokenBody, tags: ['notifications'] },
+  }, async (request, reply) => {
+    await registerDeviceToken(request.user!.id, request.body.token, request.body.platform);
+    return reply.status(204).send();
+  });
+
+  typedApp.delete('/notifications/device-token', {
+    schema: { body: deviceTokenBody, tags: ['notifications'] },
+  }, async (request, reply) => {
+    await deregisterDeviceToken(request.user!.id, request.body.token);
     return reply.status(204).send();
   });
 }

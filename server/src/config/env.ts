@@ -14,6 +14,24 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 
   CORS_ORIGIN: z.string().default('http://localhost:8081'),
+
+  // Cloudflare R2 (optional — falls back to local filesystem in dev)
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET_NAME: z.string().default('kolmena'),
+
+  // Email — Resend (optional, logs to console in dev if not set)
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().default('Kolmena <noreply@kolmena.app>'),
+
+  // Push Notifications — Expo Push API (wraps FCM + APNs)
+  // No credentials needed for Expo Push — uses Expo's service
+  // Set EXPO_ACCESS_TOKEN for production rate limits
+  EXPO_ACCESS_TOKEN: z.string().optional(),
+
+  // App URL for email links
+  APP_URL: z.string().default('http://localhost:3080'),
 });
 
 export type Env = z.infer<typeof envSchema>;
