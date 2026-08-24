@@ -22,11 +22,14 @@ const createBody = z.object({
   category: z.enum(['plumbing', 'electrical', 'elevator', 'structural', 'cleaning', 'garden', 'security', 'other']).optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
   location: z.string().max(255).optional(),
+  imageUrls: z.array(z.string().url().or(z.string().startsWith('/uploads/'))).max(5).optional(),
 });
 
 const statusBody = z.object({
   status: z.enum(['open', 'assigned', 'in_progress', 'waiting_parts', 'resolved', 'closed']),
   note: z.string().optional(),
+  // US-050: required by the service when status is 'resolved'
+  resolutionPhotoUrl: z.string().url().or(z.string().startsWith('/uploads/')).optional(),
 });
 
 const assignBody = z.object({
@@ -81,6 +84,7 @@ export async function fixRoutes(app: FastifyInstance) {
       request.body.status,
       request.user!.id,
       request.body.note,
+      request.body.resolutionPhotoUrl,
     );
     return { incident };
   });

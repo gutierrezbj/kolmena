@@ -165,6 +165,8 @@ export const incidents = pgTable('incidents', {
   status: incidentStatusEnum('status').notNull().default('open'),
   location: varchar('location', { length: 255 }),
   imageUrls: text('image_urls'),
+  // US-050: photo evidence required to mark an incident as resolved
+  resolutionPhotoUrl: text('resolution_photo_url'),
   resolvedAt: timestamp('resolved_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -230,7 +232,17 @@ export const bookings = pgTable('bookings', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// -- Notify module: in-app notifications --
+// -- Notify module: device tokens + in-app notifications --
+
+export const deviceTokens = pgTable('device_tokens', {
+  id: uuid('id').primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  token: varchar('token', { length: 500 }).notNull().unique(),
+  platform: varchar('platform', { length: 10 }).notNull(), // 'ios' | 'android'
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const notifications = pgTable('notifications', {
   id: uuid('id').primaryKey(),

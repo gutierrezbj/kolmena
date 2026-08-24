@@ -77,3 +77,97 @@ describe('Fix module', () => {
     expect(body.log[0].toStatus).toBe('assigned');
   });
 });
+
+describe('Fix module — status machine & notifications (US-041/US-050)', () => {
+  let reporterToken: string;
+  let otherToken: string;
+  let communityId: string;
+  let incidentId: string;
+
+  beforeAll(async () => {
+    const emailA = `fix-sm-a-${Date.now()}@kolmena.test`;
+    await createTestUser({ email: emailA, password: 'testpass123', name: 'Reporter A' });
+    reporterToken = (await loginTestUser(emailA, 'testpass123')).body.accessToken;
+
+    const emailB = `fix-sm-b-${Date.now()}@kolmena.test`;
+    await createTestUser({ email: emailB, password: 'testpass123', name: 'Manager B' });
+    otherToken = (await loginTestUser(emailB, 'testpass123')).body.accessToken;
+
+    const res = await authRequest(reporterToken, 'POST', '/api/v1/communities', {
+      name: `SM Test Community ${Date.now()}`,
+      address: 'Calle Estado 1',
+      city: 'Sevilla',
+      postalCode: '41001',
+      province: 'Sevilla',
+    });
+    communityId = res.json().community.id;
+
+    const inc = await authRequest(reporterToken, 'POST', `/api/v1/fix/communities/${communityId}/incidents`, {
+      title: 'Ascensor bloqueado',
+      description: 'El ascensor del portal B no responde en ninguna planta',
+      category: 'elevator',
+      priority: 'urgent',
+    });
+    incidentId = inc.json().incident.id;
+  });
+
+  it('rejects invalid transition open -> resolved', async () => {
+    const res = await authRequest(reporterToken, 'PATCH', `/api/v1/fix/incidents/${incidentId}/status`, {
+      status: 'resolved',
+      resolutionPhotoUrl: 'https://r2.kolmena.app/fix/foto.jpg',
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().message).toContain('Cannot transition');
+  });
+
+  it('allows open -> in_progress', async () => {
+    const res = await authRequest(reporterToken, 'PATCH', `/api/v1/fix/incidents/${incidentId}/status`, {
+      status: 'in_progress',
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().incident.status).toBe('in_progress');
+  });
+
+  it('rejects resolved without resolution photo (US-050)', async () => {
+    const res = await authRequest(reporterToken, 'PATCH', `/api/v1/fix/incidents/${incidentId}/status`, {
+      status: 'resolved',
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().message).toContain('resolution photo');
+  });
+
+  it('accepts resolved with photo and stores it', async () => {
+    // Changed by another user so the reporter gets a push notification
+    const res = await authRequest(otherToken, 'PATCH', `/api/v1/fix/incidents/${incidentId}/status`, {
+      status: 'resolved',
+      note: 'Reparado el motor del ascensor',
+      resolutionPhotoUrl: 'https://r2.kolmena.app/fix/ascensor-ok.jpg',
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.incident.status).toBe('resolved');
+    expect(body.incident.resolutionPhotoUrl).toBe('https://r2.kolmena.app/fix/ascensor-ok.jpg');
+  });
+
+  it('notified the reporter of the status change (in-app record)', async () => {
+    const res = await authRequest(reporterToken, 'GET', '/api/v1/notifications');
+    expect(res.statusCode).toBe(200);
+    const items = res.json().notifications;
+    const statusNotif = items.find(
+      (n: { title: string; resourceId: string }) =>
+        n.title === 'Actualización de incidencia' && n.resourceId === incidentId,
+    );
+    expect(statusNotif).toBeDefined();
+    expect(statusNotif.body).toContain('resuelta');
+  });
+
+  it('closed is terminal — no transitions out', async () => {
+    await authRequest(reporterToken, 'PATCH', `/api/v1/fix/incidents/${incidentId}/status`, {
+      status: 'closed',
+    });
+    const res = await authRequest(reporterToken, 'PATCH', `/api/v1/fix/incidents/${incidentId}/status`, {
+      status: 'in_progress',
+    });
+    expect(res.statusCode).toBe(400);
+  });
+});
