@@ -108,3 +108,100 @@ describe('Social module', () => {
     expect(res.json().poll.status).toBe('closed');
   });
 });
+
+describe('Social module — announcement permissions & broadcast', () => {
+  let presidentToken: string;
+  let residentToken: string;
+  let residentId: string;
+  let outsiderToken: string;
+  let communityId: string;
+
+  beforeAll(async () => {
+    const emailP = `social-pres-${Date.now()}@kolmena.test`;
+    await createTestUser({ email: emailP, password: 'testpass123', name: 'Presidente' });
+    presidentToken = (await loginTestUser(emailP, 'testpass123')).body.accessToken;
+
+    const emailR = `social-res-${Date.now()}@kolmena.test`;
+    const regR = await createTestUser({ email: emailR, password: 'testpass123', name: 'Residente' });
+    residentId = regR.body.id;
+    residentToken = (await loginTestUser(emailR, 'testpass123')).body.accessToken;
+
+    const emailO = `social-out-${Date.now()}@kolmena.test`;
+    await createTestUser({ email: emailO, password: 'testpass123', name: 'Outsider' });
+    outsiderToken = (await loginTestUser(emailO, 'testpass123')).body.accessToken;
+
+    const res = await authRequest(presidentToken, 'POST', '/api/v1/communities', {
+      name: `Broadcast Community ${Date.now()}`,
+      address: 'Calle Aviso 1',
+      city: 'Bilbao',
+      postalCode: '48001',
+      province: 'Vizcaya',
+    });
+    communityId = res.json().community.id;
+
+    // No public join endpoint yet — add the resident membership directly
+    const { db } = await import('../../shared/db/client.js');
+    const { userCommunities } = await import('../../shared/db/schema.js');
+    const { generateId } = await import('../../shared/utils/uuid.js');
+    await db.insert(userCommunities).values({
+      id: generateId(),
+      userId: residentId,
+      communityId,
+      role: 'resident',
+    });
+  });
+
+  it('outsider cannot post an announcement', async () => {
+    const res = await authRequest(outsiderToken, 'POST', `/api/v1/social/communities/${communityId}/posts`, {
+      title: 'Aviso falso',
+      body: 'No deberia publicarse',
+      type: 'announcement',
+    });
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('resident member cannot post an announcement', async () => {
+    const res = await authRequest(residentToken, 'POST', `/api/v1/social/communities/${communityId}/posts`, {
+      title: 'Aviso de residente',
+      body: 'Tampoco deberia publicarse',
+      type: 'announcement',
+    });
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('resident CAN post a general post', async () => {
+    const res = await authRequest(residentToken, 'POST', `/api/v1/social/communities/${communityId}/posts`, {
+      title: 'Hola vecinos',
+      body: 'Me presento, soy el nuevo del 3B',
+      type: 'general',
+    });
+    expect(res.statusCode).toBe(201);
+  });
+
+  it('president announcement broadcasts in-app notification to members', async () => {
+    const res = await authRequest(presidentToken, 'POST', `/api/v1/social/communities/${communityId}/posts`, {
+      title: 'Corte de agua el lunes',
+      body: 'De 9:00 a 13:00 por obras en la red general',
+      type: 'announcement',
+    });
+    expect(res.statusCode).toBe(201);
+    const postId = res.json().post.id;
+
+    const notifs = await authRequest(residentToken, 'GET', '/api/v1/notifications');
+    expect(notifs.statusCode).toBe(200);
+    const broadcast = notifs.json().notifications.find(
+      (n: { title: string; resourceId: string }) =>
+        n.title === 'Aviso oficial' && n.resourceId === postId,
+    );
+    expect(broadcast).toBeDefined();
+    expect(broadcast.body).toBe('Corte de agua el lunes');
+  });
+
+  it('does not notify the announcement author', async () => {
+    const notifs = await authRequest(presidentToken, 'GET', '/api/v1/notifications');
+    const own = notifs.json().notifications.find(
+      (n: { title: string }) => n.title === 'Aviso oficial',
+    );
+    expect(own).toBeUndefined();
+  });
+});

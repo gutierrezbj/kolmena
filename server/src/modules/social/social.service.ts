@@ -1,11 +1,17 @@
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../../shared/db/client.js';
-import { posts, polls, pollOptions, pollVotes } from '../../shared/db/schema.js';
+import { posts, polls, pollOptions, pollVotes, userCommunities } from '../../shared/db/schema.js';
 import { generateId } from '../../shared/utils/uuid.js';
 import { AppError } from '../../shared/errors/app-error.js';
 import { ErrorCode } from '../../shared/errors/error-codes.js';
+import { logger } from '../../shared/utils/logger.js';
+import { notifyCommunityMembers } from '../notify/notify.service.js';
 
 type PostType = 'announcement' | 'general' | 'event';
+
+// Announcements are official communications — only community managers can post them.
+// The role lives in user_communities (per community), not in the JWT.
+const ANNOUNCEMENT_ROLES = ['admin', 'president'] as const;
 
 // --- Posts ---
 
@@ -22,15 +28,48 @@ export async function getPost(id: string) {
 }
 
 export async function createPost(communityId: string, authorId: string, data: { title: string; body: string; type?: PostType; isPinned?: boolean }) {
+  const type = data.type ?? 'general';
+
+  if (type === 'announcement') {
+    const [membership] = await db.select({ role: userCommunities.role })
+      .from(userCommunities)
+      .where(and(eq(userCommunities.userId, authorId), eq(userCommunities.communityId, communityId)))
+      .limit(1);
+
+    if (!membership || !(ANNOUNCEMENT_ROLES as readonly string[]).includes(membership.role)) {
+      throw new AppError(
+        ErrorCode.FORBIDDEN,
+        'Only admins and presidents can post official announcements',
+      );
+    }
+  }
+
   const [post] = await db.insert(posts).values({
     id: generateId(),
     communityId,
     authorId,
     title: data.title,
     body: data.body,
-    type: data.type ?? 'general',
+    type,
     isPinned: data.isPinned ?? false,
   }).returning();
+
+  // Official announcements push to every member except the author — never blocks
+  if (type === 'announcement') {
+    try {
+      await notifyCommunityMembers({
+        communityId,
+        excludeUserId: authorId,
+        title: 'Aviso oficial',
+        body: data.title,
+        resource: 'post',
+        resourceId: post!.id,
+      });
+    } catch (err) {
+      logger.error({ err, postId: post!.id }, 'Failed to broadcast announcement');
+    }
+  }
+
   return post;
 }
 
