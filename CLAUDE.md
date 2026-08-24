@@ -142,6 +142,26 @@ kolmena/
 5. **Kolmena Spaces** (EP-04): Reservas, calendario visual, reglas
 6. **Panel Admin** (EP-05): Dashboard multi-comunidad, gestión, CSV
 
+## Identity Sprint — Kolmena (v1.0, Abril 2026)
+Ejecutado conforme SRS Design System Nucleus v2.0. Referencia completa: `docs/design/identity-sprint.md`
+
+| Elemento | Decision |
+|----------|----------|
+| **Carácter** | "Gestoría de nueva generación para la escalera de toda la vida" |
+| **Color primario** | honey `#F5A623` — ancla cálida |
+| **Fondo** | `#FFFDF7` — blanco cálido, no `#FFFFFF` puro |
+| **Display** | Bricolage Grotesque — grotesca variable con carácter |
+| **Body** | Plus Jakarta Sans — humanista, no Inter/Roboto |
+| **Mono** | DM Mono — datos, fechas, IDs, badges |
+| **Motion** | ease-spring + Spring Lift universal |
+| **Signature detail** | Micro-textura hexagonal SVG al 4% opacity |
+
+Reglas:
+- NO fuentes de la Blacklist (Inter, Roboto, Poppins, Space Grotesk...)
+- NO hardcodear hex — usar tokens de `apps/*/src/theme/`
+- Todo spacing viene de `spacing.ts` (base 4px)
+- Spring Lift en todos los elementos interactivos
+
 ## Patrones Obligatorios Kolmena
 - Repository pattern para acceso a datos (abstracción sobre Drizzle)
 - Service layer entre controller y repository

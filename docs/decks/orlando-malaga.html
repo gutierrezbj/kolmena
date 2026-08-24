@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#FFFDF7" />
+<title>Kolmena — para Orlando y Bea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --honey-500: #F5A623;
+    --honey-600: #D88B0F;
+    --warm-50: #FFFDF7;
+    --warm-100: #F8F3E8;
+    --warm-200: #ECE2CB;
+    --warm-600: #6B5641;
+    --warm-700: #4F3E2C;
+    --warm-800: #3D2E1E;
+    --warm-900: #1C1410;
+    --toast-500: #7C5E3C;
+    --ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--warm-50);
+    color: var(--warm-800);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  body {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    height: 100vh;
+    overflow-y: scroll;
+  }
+
+  .hex-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'><polygon points='30,1 58,15 58,37 30,51 2,37 2,15' fill='none' stroke='%23F5A623' stroke-width='1' opacity='0.4'/></svg>");
+    background-size: 80px 70px;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .slide {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    min-height: 100vh;
+    width: 100%;
+    padding: 32px 24px 80px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .slide > .inner {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .pager {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--warm-600);
+    letter-spacing: 0.08em;
+    z-index: 2;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--honey-600);
+    margin-bottom: 20px;
+    display: inline-block;
+    padding: 6px 10px;
+    background: var(--warm-100);
+    border-radius: 4px;
+  }
+
+  h1 {
+    font-family: 'Bricolage Grotesque', serif;
+    font-weight: 800;
+    font-size: clamp(40px, 11vw, 64px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--warm-900);
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-family: 'Bricolage Grotesque', serif;
+    font-weight: 700;
+    font-size: clamp(30px, 8vw, 44px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    color: var(--warm-900);
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-family: 'Bricolage Grotesque', serif;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.15;
+    color: var(--warm-900);
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--warm-700);
+    margin-bottom: 14px;
+  }
+
+  .lead {
+    font-size: 20px;
+    line-height: 1.45;
+    color: var(--warm-700);
+  }
+
+  .small {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--warm-600);
+    letter-spacing: 0.04em;
+  }
+
+  .highlight {
+    background: linear-gradient(180deg, transparent 60%, rgba(245,166,35,0.35) 60%);
+    padding: 0 2px;
+  }
+
+  .accent { color: var(--honey-600); }
+
+  .card {
+    background: var(--warm-100);
+    border: 1px solid var(--warm-200);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    transition: transform 280ms var(--ease-spring);
+  }
+  .card:active { transform: scale(0.98); }
+
+  .card-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--honey-500);
+    color: var(--warm-900);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 9px;
+    border-radius: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .badge-soft {
+    background: var(--warm-100);
+    color: var(--warm-700);
+    border: 1px solid var(--warm-200);
+  }
+
+  .badge-live {
+    background: #C8E6C9;
+    color: #1B5E20;
+  }
+
+  .module-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--honey-600);
+    background: rgba(245,166,35,0.12);
+    border-radius: 6px;
+    padding: 4px 8px;
+    min-width: 34px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .question-card {
+    background: var(--warm-900);
+    color: var(--warm-50);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 14px;
+  }
+  .question-card .qnum {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--honey-500);
+    letter-spacing: 0.18em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .question-card p {
+    color: var(--warm-50);
+    font-size: 18px;
+    margin: 0;
+    line-height: 1.35;
+  }
+
+  .mockup {
+    background: var(--warm-900);
+    border-radius: 28px;
+    padding: 14px 12px;
+    box-shadow: 0 20px 50px rgba(60,40,20,0.18);
+    max-width: 280px;
+    margin: 28px auto 0;
+    position: relative;
+  }
+  .mockup-screen {
+    background: var(--warm-50);
+    border-radius: 18px;
+    padding: 18px 16px;
+    min-height: 380px;
+  }
+  .mockup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .mockup-title {
+    font-family: 'Bricolage Grotesque', serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--warm-900);
+  }
+  .mockup-bell {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--warm-100);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .mock-incident {
+    background: var(--warm-100);
+    border-left: 3px solid var(--honey-500);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .mock-incident .t {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--warm-900);
+    margin-bottom: 4px;
+  }
+  .mock-incident .m {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--warm-600);
+  }
+  .mock-status {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+  .status-open { background: #FFE0B2; color: #6B3F00; }
+  .status-prog { background: #BBDEFB; color: #0D47A1; }
+  .status-done { background: #C8E6C9; color: #1B5E20; }
+
+  .footer-note {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--warm-200);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--warm-600);
+    letter-spacing: 0.04em;
+  }
+
+  .hero {
+    background: var(--warm-900);
+    color: var(--warm-50);
+  }
+  .hero h1 { color: var(--warm-50); font-size: clamp(56px, 16vw, 88px); }
+  .hero .lead { color: rgba(255,253,247,0.75); }
+  .hero .eyebrow { color: var(--honey-500); background: rgba(245,166,35,0.12); }
+  .hero .pager { color: rgba(255,253,247,0.5); }
+  .hero .hex-bg {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'><polygon points='30,1 58,15 58,37 30,51 2,37 2,15' fill='none' stroke='%23F5A623' stroke-width='1.2' opacity='1'/></svg>");
+    opacity: 0.07;
+  }
+
+  .closing {
+    background: var(--honey-500);
+    color: var(--warm-900);
+  }
+  .closing h2 { color: var(--warm-900); }
+  .closing p { color: var(--warm-900); }
+  .closing .small { color: var(--warm-800); }
+  .closing .pager { color: var(--warm-900); opacity: 0.6; }
+  .closing .hex-bg {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'><polygon points='30,1 58,15 58,37 30,51 2,37 2,15' fill='none' stroke='%231C1410' stroke-width='1.2' opacity='1'/></svg>");
+    opacity: 0.06;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--warm-600);
+    opacity: 0.7;
+    z-index: 2;
+  }
+  .hero .scroll-hint { color: rgba(255,253,247,0.6); }
+  .closing .scroll-hint { display: none; }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 22px;
+  }
+  .stat {
+    background: var(--warm-100);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .stat .v {
+    font-family: 'Bricolage Grotesque', serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--warm-900);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat .l {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--warm-600);
+  }
+
+  @media (min-width: 768px) {
+    .slide { padding: 60px 40px 100px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 0 — HERO -->
+<section class="slide hero">
+  <div class="hex-bg"></div>
+  <div class="pager">00 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">Para Orlando y Bea</span>
+    <h1>Kolmena.</h1>
+    <p class="lead">Gestoría de nueva generación para la escalera de toda la vida.</p>
+    <p class="small" style="margin-top: 32px; color: rgba(255,253,247,0.5);">Mayo 2026 — Estado real, sin filtros.<br/>Hecho para que nos digas qué falta.</p>
+  </div>
+  <div class="scroll-hint">↓ desliza</div>
+</section>
+
+<!-- SLIDE 1 — POR QUÉ EXISTE -->
+<section class="slide">
+  <div class="hex-bg"></div>
+  <div class="pager">01 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">Por qué existe</span>
+    <h2>El software de administración de fincas está atascado en <span class="highlight">2008</span>.</h2>
+    <p>Pantallas grises, menús de 40 entradas, tablas que no caben en el móvil. Los vecinos no lo usan. El administrador acaba en WhatsApp y Excel.</p>
+    <p>El día a día es ruido: la misma incidencia preguntada cinco veces, reservas de zonas comunes por grupo, anuncios que se pierden bajo memes.</p>
+  </div>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<!-- SLIDE 2 — LA TESIS -->
+<section class="slide">
+  <div class="hex-bg"></div>
+  <div class="pager">02 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">La tesis</span>
+    <h2>Una app que <span class="highlight">cualquier vecino</span> sabe usar sin tutorial.</h2>
+    <p>Compite con Instagram en usabilidad, no con Gesfincas. Si un señor de 78 años no la entiende, está mal diseñada.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="v">5 toques</div><div class="l">cualquier acción</div></div>
+      <div class="stat"><div class="v">0</div><div class="l">tutoriales</div></div>
+      <div class="stat"><div class="v">900k</div><div class="l">comunidades ES</div></div>
+      <div class="stat"><div class="v">1</div><div class="l">app, no diez</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<!-- SLIDE 3 — QUÉ TENEMOS HOY -->
+<section class="slide">
+  <div class="hex-bg"></div>
+  <div class="pager">03 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">Qué tenemos hoy · real</span>
+    <h2>Cuatro módulos funcionando.</h2>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="module-num">01</div>
+        <div>
+          <h3>Auth + Onboarding</h3>
+          <p style="margin:0;font-size:15px;">Registro por QR de la comunidad, login móvil y panel admin, multi-rol.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="module-num">02</div>
+        <div>
+          <h3>Muro social</h3>
+          <p style="margin:0;font-size:15px;">Posts, anuncios oficiales del administrador, encuestas con voto.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="module-num">03</div>
+        <div>
+          <h3>Incidencias (Fix)</h3>
+          <p style="margin:0;font-size:15px;">Reportar con foto desde el móvil, kanban de estados, prioridades y categorías.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="module-num">04</div>
+        <div>
+          <h3>Reservas (Spaces)</h3>
+          <p style="margin:0;font-size:15px;">Zonas comunes con calendario, reglas y detección de conflictos.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="small" style="margin-top: 18px;">+ Panel admin React con dashboard, comunidades, incidencias.</p>
+  </div>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<!-- SLIDE 4 — MOCKUP -->
+<section class="slide">
+  <div class="hex-bg"></div>
+  <div class="pager">04 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">Así se ve</span>
+    <h2 style="font-size: clamp(28px,7vw,38px);">Una incidencia en tres pasos.</h2>
+    <p style="font-size:15px;">Foto, descripción, enviar. El admin lo ve en el kanban en tiempo real.</p>
+
+    <div class="mockup">
+      <div class="mockup-screen">
+        <div class="mockup-header">
+          <div class="mockup-title">Incidencias</div>
+          <div class="mockup-bell">🔔</div>
+        </div>
+
+        <div class="mock-incident">
+          <div class="t">Bombilla rellano 3º fundida</div>
+          <div class="m">Hoy · 09:42 · María (3ºB)</div>
+          <span class="mock-status status-prog">En curso</span>
+        </div>
+
+        <div class="mock-incident">
+          <div class="t">Mancha humedad garaje plaza 14</div>
+          <div class="m">Ayer · 18:11 · Luis (2ºA)</div>
+          <span class="mock-status status-open">Abierta</span>
+        </div>
+
+        <div class="mock-incident">
+          <div class="t">Puerta portal no cierra bien</div>
+          <div class="m">26 may · 11:30 · Ana (1ºC)</div>
+          <span class="mock-status status-done">Resuelta</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<!-- SLIDE 5 — LO QUE NO ENGAÑAMOS -->
+<section class="slide">
+  <div class="hex-bg"></div>
+  <div class="pager">05 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">Honestos</span>
+    <h2>Lo que <span class="accent">aún no</span> está.</h2>
+    <p>Os lo decimos antes de que lo preguntéis:</p>
+
+    <div class="card">
+      <h3 style="font-size: 16px;">Notificaciones push y email reales</h3>
+      <p style="margin:0;font-size:14px;">Infraestructura lista, integración FCM + Resend en cola para Q3.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size: 16px;">Módulo económico</h3>
+      <p style="margin:0;font-size:14px;">Cuotas, derramas, recibos. Aún no existe. Sabemos que es crítico.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size: 16px;">Marketplace de proveedores</h3>
+      <p style="margin:0;font-size:14px;">Idea sobre la mesa, sin construir.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size: 16px;">Integración con bancos / SEPA</h3>
+      <p style="margin:0;font-size:14px;">No hay roadmap todavía. Queremos vuestra opinión.</p>
+    </div>
+  </div>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<!-- SLIDE 6 — HACIA DÓNDE VAMOS -->
+<section class="slide">
+  <div class="hex-bg"></div>
+  <div class="pager">06 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">Hacia dónde vamos</span>
+    <h2>Roadmap. Honesto, en orden.</h2>
+
+    <div class="card">
+      <span class="badge">Q3 2026</span>
+      <h3 style="margin-top: 10px; font-size: 17px;">Notificaciones reales + magic link</h3>
+      <p style="margin:0; font-size: 14px;">Cerrar el loop entre app y administrador. Onboarding por enlace sin contraseña.</p>
+    </div>
+
+    <div class="card">
+      <span class="badge">Q4 2026</span>
+      <h3 style="margin-top: 10px; font-size: 17px;">Módulo económico v1</h3>
+      <p style="margin:0; font-size: 14px;">Cuotas, derramas, recibos PDF, control de morosidad.</p>
+    </div>
+
+    <div class="card">
+      <span class="badge badge-soft">2027</span>
+      <h3 style="margin-top: 10px; font-size: 17px;">Marketplace proveedores</h3>
+      <p style="margin:0; font-size: 14px;">Fontaneros, electricistas, jardineros verificados por comunidad.</p>
+    </div>
+
+    <div class="card">
+      <span class="badge badge-soft">2027</span>
+      <h3 style="margin-top: 10px; font-size: 17px;">Transacciones entre vecinos</h3>
+      <p style="margin:0; font-size: 14px;">Compra-venta y alquileres internos antes de salir al mercado abierto.</p>
+    </div>
+  </div>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<!-- SLIDE 7 — LO QUE QUEREMOS PREGUNTAROS -->
+<section class="slide">
+  <div class="hex-bg"></div>
+  <div class="pager">07 · 09</div>
+  <div class="inner">
+    <span class="eyebrow">Aquí entráis vosotros</span>
+    <h2>Cuatro preguntas.</h2>
+    <p style="margin-bottom: 22px;">Sois los que pisáis las comunidades cada semana. Vuestra respuesta cambia el orden del roadmap.</p>
+
+    <div class="question-card">
+      <div class="qnum">Pregunta 01</div>
+      <p>¿Qué tarea repetís más veces a la semana y os come la tarde?</p>
+    </div>
+    <div class="question-card">
+      <div class="qnum">Pregunta 02</div>
+      <p>De los módulos que estamos haciendo, ¿cuál NO sirve para nada?</p>
+    </div>
+    <div class="question-card">
+      <div class="qnum">Pregunta 03</div>
+      <p>¿Qué cosa que damos por imposible, daríais por ganada si funcionara?</p>
+    </div>
+    <div class="question-card">
+      <div class="qnum">Pregunta 04</div>
+      <p>Si tuvierais que pagar por Kolmena hoy, ¿qué tendría que hacer para que mereciera la pena?</p>
+    </div>
+  </div>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<!-- SLIDE 8 — CIERRE -->
+<section class="slide closing">
+  <div class="hex-bg"></div>
+  <div class="pager">08 · 09</div>
+  <div class="inner">
+    <span class="eyebrow" style="background: rgba(28,20,16,0.1); color: var(--warm-900);">Cierre</span>
+    <h2 style="font-size: clamp(36px, 10vw, 56px);">¿Qué te falta?<br/>¿Qué te sobra?</h2>
+    <p class="lead" style="color: var(--warm-900); margin-top: 12px;">No venimos a venderos nada hoy. Venimos a aprender de vosotros.</p>
+
+    <div class="footer-note" style="border-top-color: rgba(28,20,16,0.15);">
+      Kolmena — System Rapid Solutions<br/>
+      Madrid · Málaga — kolmena.app
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -16,6 +16,17 @@ services:
       REDIS_URL: redis://kolmena-redis:6379
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGIN: http://127.0.0.1:3080
+      # Email
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-Kolmena <noreply@kolmena.app>}
+      APP_URL: ${APP_URL:-http://127.0.0.1:3080}
+      # Push notifications
+      EXPO_ACCESS_TOKEN: ${EXPO_ACCESS_TOKEN:-}
+      # Storage (Cloudflare R2)
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-kolmena}
     depends_on:
       kolmena-db:
         condition: service_healthy
