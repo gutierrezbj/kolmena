@@ -9,6 +9,7 @@ dist/
 .env
 .env.local
 .env.*.local
+infra/.env.staging
 
 # IDE
 .vscode/settings.json
@@ -44,3 +45,6 @@ server/drizzle/meta/
 # Misc
 *.tgz
 .turbo
+
+# Presentaciones y binarios pesados (no versionar en git)
+Presentaciones/
