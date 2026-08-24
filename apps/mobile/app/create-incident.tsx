@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { api } from '../src/lib/api';
+import * as ImagePicker from 'expo-image-picker';
+import { api, uploadFiles } from '../src/lib/api';
 import { useCommunity } from '../src/hooks/useCommunity';
 import { colors } from '../src/theme/colors';
 import { typography } from '../src/theme/typography';
@@ -32,7 +33,36 @@ export default function CreateIncidentScreen() {
   const [category, setCategory] = useState('other');
   const [priority, setPriority] = useState('medium');
   const [location, setLocation] = useState('');
+  const [images, setImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const pickImages = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: 5 - images.length,
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImages((prev) => [...prev, ...result.assets.map((a) => a.uri)].slice(0, 5));
+    }
+  };
+
+  const takePhoto = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Permiso requerido', 'Se necesita acceso a la camara');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+    if (!result.canceled) {
+      setImages((prev) => [...prev, result.assets[0].uri].slice(0, 5));
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async () => {
     if (!community || !title.trim() || !description.trim()) {
@@ -41,6 +71,10 @@ export default function CreateIncidentScreen() {
     }
     setSubmitting(true);
     try {
+      let imageUrls: string[] | undefined;
+      if (images.length > 0) {
+        imageUrls = await uploadFiles(images);
+      }
       await api(`/fix/communities/${community.id}/incidents`, {
         method: 'POST',
         body: {
@@ -49,6 +83,7 @@ export default function CreateIncidentScreen() {
           category,
           priority,
           ...(location.trim() && { location: location.trim() }),
+          ...(imageUrls && { imageUrls }),
         },
       });
       router.back();
@@ -88,6 +123,28 @@ export default function CreateIncidentScreen() {
       <Text style={typography.label}>Ubicacion (opcional)</Text>
       <TextInput style={styles.input} value={location} onChangeText={setLocation} placeholder="Ej: Portal 3, planta 2" />
 
+      <Text style={typography.label}>Fotos (opcional, max 5)</Text>
+      <View style={styles.imageSection}>
+        {images.map((uri, i) => (
+          <View key={uri} style={styles.imageThumb}>
+            <Image source={{ uri }} style={styles.thumbImg} />
+            <TouchableOpacity style={styles.removeBtn} onPress={() => removeImage(i)}>
+              <Text style={styles.removeBtnText}>X</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+        {images.length < 5 && (
+          <View style={styles.addBtns}>
+            <TouchableOpacity style={styles.addImageBtn} onPress={pickImages}>
+              <Text style={styles.addImageText}>Galeria</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addImageBtn} onPress={takePhoto}>
+              <Text style={styles.addImageText}>Camara</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
       <TouchableOpacity style={[styles.submitBtn, submitting && styles.submitDisabled]} onPress={handleSubmit} disabled={submitting}>
         {submitting ? <ActivityIndicator color={colors.white} /> : <Text style={styles.submitText}>Reportar incidencia</Text>}
       </TouchableOpacity>
@@ -115,6 +172,14 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: colors.honey },
   chipText: { fontSize: 13, fontWeight: '500', color: colors.gray600 },
   chipTextActive: { color: colors.white },
+  imageSection: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 6, marginBottom: 16 },
+  imageThumb: { width: 80, height: 80, borderRadius: 8, overflow: 'hidden', position: 'relative' },
+  thumbImg: { width: '100%', height: '100%' },
+  removeBtn: { position: 'absolute', top: 2, right: 2, backgroundColor: 'rgba(0,0,0,0.6)', width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  removeBtnText: { color: colors.white, fontSize: 12, fontWeight: '700' },
+  addBtns: { flexDirection: 'row', gap: 8 },
+  addImageBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.gray100, borderWidth: 1, borderColor: colors.gray200, borderStyle: 'dashed' },
+  addImageText: { fontSize: 13, fontWeight: '500', color: colors.gray600 },
   submitBtn: { backgroundColor: colors.honey, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 8 },
   submitDisabled: { opacity: 0.6 },
   submitText: { color: colors.white, fontSize: 16, fontWeight: '600' },

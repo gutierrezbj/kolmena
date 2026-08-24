@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, setToken } from '../api';
+import { c, sp, r, font, shadow, motion, hexTexture } from '../theme/tokens';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -30,18 +31,63 @@ export function LoginPage() {
   return (
     <div style={container}>
       <form onSubmit={handleSubmit} style={card}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#F5A623', marginBottom: 8 }}>Kolmena Admin</h1>
-        <p style={{ color: '#6B7280', marginBottom: 24, fontSize: 14 }}>Panel de administracion</p>
+        <h1 style={{
+          fontSize: 28,
+          fontWeight: 800,
+          color: c.primary,
+          marginBottom: sp[1],
+          fontFamily: font.display,
+          letterSpacing: '-0.03em',
+        }}>
+          Kolmena Admin
+        </h1>
+        <p style={{ color: c.textMuted, marginBottom: sp[5], fontSize: 14, fontFamily: font.body }}>
+          Panel de administracion
+        </p>
 
-        {error && <p style={{ color: '#DC2626', fontSize: 13, marginBottom: 12 }}>{error}</p>}
+        {error && (
+          <p style={{
+            color: c.errorText,
+            fontSize: 13,
+            marginBottom: sp[3],
+            padding: `${sp[2]} ${sp[3]}`,
+            backgroundColor: c.errorBg,
+            borderRadius: r.md,
+            border: `1px solid ${c.errorBorder}`,
+          }}>
+            {error}
+          </p>
+        )}
 
-        <label style={label}>Email</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={input} />
+        <label style={labelStyle}>Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={inputStyle}
+          onFocus={(e) => { e.target.style.borderColor = c.primary; e.target.style.boxShadow = `0 0 0 3px ${c.primaryLight}`; }}
+          onBlur={(e) => { e.target.style.borderColor = c.surfaceBorder; e.target.style.boxShadow = 'none'; }}
+        />
 
-        <label style={label}>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={input} />
+        <label style={labelStyle}>Password</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={inputStyle}
+          onFocus={(e) => { e.target.style.borderColor = c.primary; e.target.style.boxShadow = `0 0 0 3px ${c.primaryLight}`; }}
+          onBlur={(e) => { e.target.style.borderColor = c.surfaceBorder; e.target.style.boxShadow = 'none'; }}
+        />
 
-        <button type="submit" disabled={loading} style={{ ...submitBtn, opacity: loading ? 0.6 : 1 }}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ ...submitBtn, opacity: loading ? 0.6 : 1 }}
+          onMouseEnter={(e) => { if (!loading) (e.target as HTMLElement).style.backgroundColor = c.primaryHover; }}
+          onMouseLeave={(e) => { (e.target as HTMLElement).style.backgroundColor = c.primary; }}
+        >
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
       </form>
@@ -50,19 +96,59 @@ export function LoginPage() {
 }
 
 const container: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  minHeight: '100vh', backgroundColor: '#FAFAFA',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '100vh',
+  backgroundColor: c.bg,
+  backgroundImage: hexTexture,
+  backgroundSize: '28px 49px',
 };
+
 const card: React.CSSProperties = {
-  backgroundColor: '#FFF', padding: 40, borderRadius: 16, width: 380,
-  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+  backgroundColor: c.surface,
+  padding: sp[7],
+  borderRadius: r.xl,
+  width: 380,
+  boxShadow: shadow.lg,
+  border: `1px solid ${c.surfaceBorder}`,
 };
-const label: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 4 };
-const input: React.CSSProperties = {
-  width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #D1D5DB',
-  fontSize: 15, marginBottom: 16, outline: 'none',
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  fontWeight: 600,
+  color: c.textSecondary,
+  marginBottom: sp[1],
+  fontFamily: font.mono,
+  textTransform: 'uppercase',
+  letterSpacing: '0.06em',
 };
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: `${sp[2]} ${sp[3]}`,
+  borderRadius: r.md,
+  border: `1px solid ${c.surfaceBorder}`,
+  fontSize: 15,
+  marginBottom: sp[4],
+  outline: 'none',
+  fontFamily: font.body,
+  color: c.textPrimary,
+  backgroundColor: c.bg,
+  transition: `border-color ${motion.durationFast} ${motion.easing}, box-shadow ${motion.durationFast} ${motion.easing}`,
+};
+
 const submitBtn: React.CSSProperties = {
-  width: '100%', padding: 12, border: 'none', borderRadius: 10,
-  backgroundColor: '#F5A623', color: '#FFF', fontSize: 15, fontWeight: 600, cursor: 'pointer',
+  width: '100%',
+  padding: sp[3],
+  border: 'none',
+  borderRadius: r.md,
+  backgroundColor: c.primary,
+  color: c.textOnPrimary,
+  fontSize: 15,
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontFamily: font.body,
+  transition: `background-color ${motion.durationFast} ${motion.easing}, transform ${motion.durationFast} ${motion.easing}`,
 };

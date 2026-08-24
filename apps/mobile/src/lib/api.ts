@@ -21,6 +21,34 @@ type RequestOptions = {
   headers?: Record<string, string>;
 };
 
+export async function uploadFiles(uris: string[]): Promise<string[]> {
+  const formData = new FormData();
+  for (const uri of uris) {
+    const name = uri.split('/').pop() ?? 'photo.jpg';
+    const ext = name.split('.').pop()?.toLowerCase() ?? 'jpg';
+    const type = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+    formData.append('file', { uri, name, type } as unknown as Blob);
+  }
+
+  const headers: Record<string, string> = {};
+  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
+  const endpoint = uris.length === 1 ? '/upload' : '/upload/batch';
+  const res = await fetch(`${BASE}${endpoint}`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Upload failed' }));
+    throw new Error(error.message ?? `HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  return uris.length === 1 ? [data.url] : data.urls;
+}
+
 export async function api<T = unknown>(path: string, opts: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

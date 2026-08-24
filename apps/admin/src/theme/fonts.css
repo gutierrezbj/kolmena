@@ -1,0 +1,7 @@
+/* Kolmena Admin — Custom Fonts (Identity Sprint v1.0) */
+/* Bricolage Grotesque: display/headers — carácter, enérgica, no genérica */
+/* DM Mono: datos, fechas, IDs, badges — tensión legible */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+
+/* General Sans: body — limpio, no Inter/Roboto */
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600,700&display=swap');

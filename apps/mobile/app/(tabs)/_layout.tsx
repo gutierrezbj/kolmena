@@ -1,8 +1,12 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../src/theme/colors';
+import { usePushToken } from '../../src/hooks/usePushToken';
 
 export default function TabsLayout() {
+  // Register push token once the user reaches the authenticated tab area
+  usePushToken(true);
+
   return (
     <Tabs
       screenOptions={{
